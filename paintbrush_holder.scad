@@ -11,15 +11,15 @@ module bucket_bottom(bottom_radius, top_radius, height, thickness = 2) {
           cyl(h=20, r=top_radius - thickness / 2) {
             tag("ring_remove") align(TOP) down(20) cyl(h=20, r=top_radius - thickness );
 
-            tag("ring_keep") align(TOP) down(20) cuboid([top_radius * 2 - thickness - 0.25, 4, 20]);
-            tag("ring_keep") align(TOP) zrot(90) down(20) cuboid([top_radius * 2 - thickness - 0.25, 4, 20]);
+            tag("ring_keep") align(TOP) down(20) cuboid([top_radius * 2 - thickness - 0.25, thickness, 20]);
+            tag("ring_keep") align(TOP) zrot(90) down(20) cuboid([top_radius * 2 - thickness - 0.25, thickness, 20]);
 
           }; 
          
         }
       }
-      tag("bottom_keep") align(TOP) down(height - thickness) prismoid(size2=[top_radius * 2 - thickness - 0.25, 4], size1=[bottom_radius * 2 - thickness - 0.25, 4], h=height);
-      tag("bottom_keep") align(TOP) zrot(90) down(height - thickness) prismoid(size2=[top_radius * 2 - thickness - 0.25, 4], size1=[bottom_radius * 2 - thickness - 0.25, 4], h=height);
+      tag("bottom_keep") align(TOP) down(height - thickness) prismoid(size2=[top_radius * 2 - thickness - 0.25, thickness], size1=[bottom_radius * 2 - thickness - 0.25, thickness], h=height);
+      tag("bottom_keep") align(TOP) zrot(90) down(height - thickness) prismoid(size2=[top_radius * 2 - thickness - 0.25, thickness], size1=[bottom_radius * 2 - thickness - 0.25, thickness], h=height);
     }
   }
 }
@@ -59,7 +59,7 @@ module bucket_top(bottom_radius, top_radius, height, thickness = 2) {
 module default_draw(bottom_radius=70, top_radius=80, bottom_height=200, top_height=150, thickness=3) {
 
     bucket_bottom(bottom_radius=bottom_radius, top_radius=top_radius, height=bottom_height, thickness=thickness);
- //   left(top_radius * 2.5) bucket_top(bottom_radius=bottom_radius, top_radius=top_radius, height=top_height, thickness=thickness);
+    left(top_radius * 2.5) bucket_top(bottom_radius=bottom_radius, top_radius=top_radius, height=top_height, thickness=thickness);
 }
 
 default_draw();
