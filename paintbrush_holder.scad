@@ -22,20 +22,32 @@ module ring(inner_radius, outer_radius, thickness, height, anchor=CENTER, spin=0
   }
 }
 
+module ring_angle(inner_radius, outer_radius, thickness, height, angle) {
+
+  tag_scope() {
+    diff() {
+      ring(inner_radius = inner_radius, outer_radius = outer_radius, thickness = thickness, height = height) align(TOP) {
+        tag("remove") align(TOP) color("RED") zrot(angle/2) down(height/2) left(inner_radius + thickness) cuboid([2*(inner_radius + thickness), 2*(inner_radius + thickness), height]);
+        tag("remove") align(TOP) color("GREEN") zrot(-angle/2) down(height/2) right(inner_radius + thickness) cuboid([2*(inner_radius + thickness), 2*(inner_radius + thickness), height]);
+      }
+    }
+  }
+}
+
 module bucket_bottom(bottom_radius, top_radius, height, thickness = 2) {
   diff("bottom_remove", "bottom_keep") {
     cyl(h=height, r1=bottom_radius, r2=top_radius, rounding1=5) {
       tag("bottom_remove") align(TOP) down(height - thickness) cyl(h=height, r1=bottom_radius - thickness, r2=top_radius - thickness);
       align(TOP) {
         
-        up(10) ring(inner_radius=top_radius - thickness, thickness=thickness/2 -0.25, height=20) align(TOP) {
-            align(TOP) down(10) cuboid([top_radius * 2 - thickness - 0.50, thickness, 20]);
-            align(TOP) zrot(90) down(10) cuboid([top_radius * 2 - thickness - 0.50, thickness, 20]);
+        up(10) ring(inner_radius=top_radius - thickness, thickness=(thickness/2) -0.25, height=20) align(TOP) {
+            align(TOP) down(10) cuboid([(top_radius * 2) - (thickness * 2), thickness, 20]);
+            align(TOP) zrot(90) down(10) cuboid([(top_radius * 2) - (thickness *2), thickness, 20]);
 
         }
       }
-      tag("bottom_keep") align(TOP) down(height - thickness) prismoid(size2=[top_radius * 2 - thickness - 0.50, thickness], size1=[bottom_radius * 2 - thickness - 0.25, thickness], h=height);
-      tag("bottom_keep") align(TOP) zrot(90) down(height - thickness) prismoid(size2=[top_radius * 2 - thickness - 0.50, thickness], size1=[bottom_radius * 2 - thickness - 0.25, thickness], h=height);
+      tag("bottom_keep") align(TOP) down(height - thickness) prismoid(size2=[(top_radius * 2) - (thickness * 2), thickness], size1=[bottom_radius * 2 - thickness - 0.25, thickness], h=height);
+      tag("bottom_keep") align(TOP) zrot(90) down(height - thickness) prismoid(size2=[(top_radius * 2) - (thickness * 2), thickness], size1=[bottom_radius * 2 - thickness - 0.25, thickness], h=height);
     }
   }
 }
@@ -45,7 +57,7 @@ module bucket_top(bottom_radius, top_radius, height, thickness = 2) {
     cyl(h=height, r2=top_radius, r1=bottom_radius, rounding1=5) {
       tag("bottom_remove") align(TOP) down(height - thickness) cyl(h=height, r2=top_radius - thickness, r1=bottom_radius - thickness);
       align(TOP) {
-        ring(outer_radius=top_radius, thickness=thickness/2 -0.25, height=20);
+        ring(outer_radius=top_radius, thickness=(thickness/2) - 0.25, height=20);
       }
 
 
@@ -73,6 +85,6 @@ module default_draw(bottom_radius=70, top_radius=80, bottom_height=200, top_heig
     left(top_radius * 2.5) bucket_top(bottom_radius=bottom_radius, top_radius=top_radius, height=top_height, thickness=thickness);
 }
 
-default_draw();
+//default_draw();
 
-//ring(outer_radius=80, thickness=3, height=20) show_anchors();
+ring_angle(inner_radius = 80, thickness = 5, height = 10, angle = 45);
