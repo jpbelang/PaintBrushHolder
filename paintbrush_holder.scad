@@ -2,24 +2,40 @@
 include <BOSL2/std.scad>
 $fn = 60;
 
+module ring(inner_radius, outer_radius, thickness, height, anchor=CENTER, spin=0, orient=UP) {
+
+  assert(num_defined(inner_radius) || num_defined(outer_radius), "Define one of the radius values");
+  assert(!(num_defined(inner_radius) && num_defined(outer_radius) && num_defined(thickness)), "Don't define thickness if you define both radius values");
+
+  local_inner_radius = inner_radius ? inner_radius : outer_radius - thickness;  
+  local_outer_radius = outer_radius ? outer_radius : inner_radius + thickness;
+
+
+  attachable(anchor, spin, orient, r = outer_radius, l = height) {
+    tag_scope() {
+      diff() {
+      cyl(h=height, r=local_outer_radius) {
+          tag("remove") align(TOP) down(height) cyl(h=height, r=local_inner_radius);
+        }
+      } 
+    } children();
+  }
+}
+
 module bucket_bottom(bottom_radius, top_radius, height, thickness = 2) {
   diff("bottom_remove", "bottom_keep") {
     cyl(h=height, r1=bottom_radius, r2=top_radius, rounding1=5) {
       tag("bottom_remove") align(TOP) down(height - thickness) cyl(h=height, r1=bottom_radius - thickness, r2=top_radius - thickness);
       align(TOP) {
-        diff("ring_remove", "ring_keep") {
-          cyl(h=20, r=top_radius - thickness / 2) {
-            tag("ring_remove") align(TOP) down(20) cyl(h=20, r=top_radius - thickness );
+        
+        up(10) ring(inner_radius=top_radius - thickness, thickness=thickness/2 -0.25, height=20) align(TOP) {
+            align(TOP) down(10) cuboid([top_radius * 2 - thickness - 0.50, thickness, 20]);
+            align(TOP) zrot(90) down(10) cuboid([top_radius * 2 - thickness - 0.50, thickness, 20]);
 
-            tag("ring_keep") align(TOP) down(20) cuboid([top_radius * 2 - thickness - 0.25, thickness, 20]);
-            tag("ring_keep") align(TOP) zrot(90) down(20) cuboid([top_radius * 2 - thickness - 0.25, thickness, 20]);
-
-          }; 
-         
         }
       }
-      tag("bottom_keep") align(TOP) down(height - thickness) prismoid(size2=[top_radius * 2 - thickness - 0.25, thickness], size1=[bottom_radius * 2 - thickness - 0.25, thickness], h=height);
-      tag("bottom_keep") align(TOP) zrot(90) down(height - thickness) prismoid(size2=[top_radius * 2 - thickness - 0.25, thickness], size1=[bottom_radius * 2 - thickness - 0.25, thickness], h=height);
+      tag("bottom_keep") align(TOP) down(height - thickness) prismoid(size2=[top_radius * 2 - thickness - 0.50, thickness], size1=[bottom_radius * 2 - thickness - 0.25, thickness], h=height);
+      tag("bottom_keep") align(TOP) zrot(90) down(height - thickness) prismoid(size2=[top_radius * 2 - thickness - 0.50, thickness], size1=[bottom_radius * 2 - thickness - 0.25, thickness], h=height);
     }
   }
 }
@@ -29,12 +45,7 @@ module bucket_top(bottom_radius, top_radius, height, thickness = 2) {
     cyl(h=height, r2=top_radius, r1=bottom_radius, rounding1=5) {
       tag("bottom_remove") align(TOP) down(height - thickness) cyl(h=height, r2=top_radius - thickness, r1=bottom_radius - thickness);
       align(TOP) {
-        diff("ring_remove", "ring_keep") {
-          cyl(h=20, r=top_radius) {
-            tag("ring_remove") align(TOP) down(20) cyl(h=20, r=top_radius - thickness/2 + 0.25);  // donne 157. +0.25 = 157.5 Good.
-          };
-
-        }
+        ring(outer_radius=top_radius, thickness=thickness/2 -0.25, height=20);
       }
 
 
@@ -63,3 +74,5 @@ module default_draw(bottom_radius=70, top_radius=80, bottom_height=200, top_heig
 }
 
 default_draw();
+
+//ring(outer_radius=80, thickness=3, height=20) show_anchors();
