@@ -31,7 +31,7 @@ module bucket_top(bottom_radius, top_radius, height, thickness = 2) {
       align(TOP) {
         diff("ring_remove", "ring_keep") {
           cyl(h=20, r=top_radius) {
-            tag("ring_remove") align(TOP) down(20) cyl(h=20, r=top_radius - thickness/2);
+            tag("ring_remove") align(TOP) down(20) cyl(h=20, r=top_radius - thickness/2 + 0.25);  // donne 157. +0.25 = 157.5 Good.
           };
 
         }
