@@ -1,6 +1,6 @@
 
 include <BOSL2/std.scad>
-$fn = 90;
+$fn = 120;
 
 function local_inner_radius(inner_radius, outer_radius, thickness) = 
   inner_radius ? inner_radius : outer_radius - thickness;
@@ -31,7 +31,7 @@ module ring_angle(inner_radius, outer_radius, thickness, height, angle) {
 
   local_inner_radius = local_inner_radius(inner_radius=inner_radius, outer_radius=outer_radius, thickness=thickness);  
   local_outer_radius = local_outer_radius(inner_radius = inner_radius, outer_radius = outer_radius, thickness = thickness);
-  echo ("angles", local_inner_radius, local_outer_radius, inner_radius, outer_radius, thickness);
+
   tag_scope() {
     diff() {
       ring(inner_radius = inner_radius, outer_radius = outer_radius, thickness = thickness, height = height) align(TOP) {
@@ -46,7 +46,6 @@ module notched_ring(inner_radius, outer_radius, thickness, height, notch_height=
   local_inner_radius = local_inner_radius(inner_radius=inner_radius, outer_radius=outer_radius, thickness=thickness);  
   local_outer_radius = local_outer_radius(inner_radius = inner_radius, outer_radius = outer_radius, thickness = thickness);
 
-  echo ("notched", local_inner_radius, local_outer_radius, inner_radius, outer_radius, thickness);
 
   attachable(anchor, spin, orient, r = outer_radius, l = height) {
 
@@ -56,11 +55,11 @@ module notched_ring(inner_radius, outer_radius, thickness, height, notch_height=
             up(height/2 - notch_height/2) ring_angle(inner_radius = local_inner_radius - notch_thickness, thickness = notch_thickness, height = notch_height, angle = 22.5);
             zrot(180) up(height/2 - notch_height/2) ring_angle(inner_radius = local_inner_radius - notch_thickness, thickness = notch_thickness, height = notch_height, angle = 22.5);
           } else {
-            up(height/2 - notch_height/2 - notch_height - 0.1) ring_angle(inner_radius = local_outer_radius, thickness = notch_thickness, height = notch_height, angle = 45);
-            zrot(180) up(height/2 - notch_height/2 - notch_height - 0.1) ring_angle(inner_radius = local_outer_radius, thickness = notch_thickness, height = notch_height, angle = 45);
+            down(height/2 - notch_height/2 - notch_height - 0.1) ring_angle(inner_radius = local_outer_radius, thickness = notch_thickness, height = notch_height, angle = 45);
+            zrot(180) down(height/2 - notch_height/2 - notch_height - 0.1) ring_angle(inner_radius = local_outer_radius, thickness = notch_thickness, height = notch_height, angle = 45);
 
-            zrot(22.5 - 2.5)up(height/2 - notch_height/2 - 0.1) ring_angle(inner_radius = local_outer_radius, thickness = notch_thickness, height = notch_height + 0.1, angle = 5);
-            zrot(22.5 - 2.5 + 180)up(height/2 - notch_height/2 - 0.1) ring_angle(inner_radius = local_outer_radius, thickness = notch_thickness, height = notch_height + 0.1, angle = 5);
+            zrot(22.5 - 2.5) down(height/2 - notch_height/2 - 0.1) ring_angle(inner_radius = local_outer_radius, thickness = notch_thickness, height = notch_height + 0.1, angle = 5);
+            zrot(22.5 - 2.5 + 180) down(height/2 - notch_height/2 - 0.1) ring_angle(inner_radius = local_outer_radius, thickness = notch_thickness, height = notch_height + 0.1, angle = 5);
 
           }
         }  
@@ -69,19 +68,21 @@ module notched_ring(inner_radius, outer_radius, thickness, height, notch_height=
 }
 
 module bucket_bottom(bottom_radius, top_radius, height, thickness = 2) {
+  tex = texture("checkers");
+
   diff("bottom_remove", "bottom_keep") {
-    cyl(h=height, r1=bottom_radius, r2=top_radius, rounding1=5) {
+    cyl(h=height, r1=bottom_radius, r2=top_radius, rounding1=5, texture=tex, tex_depth=0.1, tex_size=[10,10], style="min_edge") {
       tag("bottom_remove") align(TOP) down(height - thickness) cyl(h=height, r1=bottom_radius - thickness, r2=top_radius - thickness);
       align(TOP) {
         
         up(10) notched_ring(inner_radius=top_radius - thickness, thickness=(thickness/2) -0.25, height=20, outside=false) align(TOP) {
-            align(TOP) down(10) cuboid([(top_radius * 2) - (thickness * 2), thickness, 20]);
-            align(TOP) zrot(90) down(10) cuboid([(top_radius * 2) - (thickness *2), thickness, 20]);
+            align(TOP) down(10) cuboid([(top_radius * 2) - (thickness * 2), 2, 20]);
+            align(TOP) zrot(90) down(10) cuboid([(top_radius * 2) - (thickness *2), 2, 20]);
 
         }
       }
-      tag("bottom_keep") align(TOP) down(height - thickness) prismoid(size2=[(top_radius * 2) - (thickness * 2), thickness], size1=[bottom_radius * 2 - thickness - 0.25, thickness], h=height);
-      tag("bottom_keep") align(TOP) zrot(90) down(height - thickness) prismoid(size2=[(top_radius * 2) - (thickness * 2), thickness], size1=[bottom_radius * 2 - thickness - 0.25, thickness], h=height);
+      tag("bottom_keep") align(TOP) down(height - thickness) prismoid(size2=[(top_radius * 2) - (thickness * 2), 2], size1=[bottom_radius * 2 - thickness - 0.25, 2], h=height);
+      tag("bottom_keep") align(TOP) zrot(90) down(height - thickness) prismoid(size2=[(top_radius * 2) - (thickness * 2), 2], size1=[bottom_radius * 2 - thickness - 0.25, 2], h=height);
     }
   }
 }
@@ -116,12 +117,7 @@ module bucket_top(bottom_radius, top_radius, height, thickness = 2) {
 module default_draw(bottom_radius=70, top_radius=80, bottom_height=200, top_height=150, thickness=3) {
 
     bucket_bottom(bottom_radius=bottom_radius, top_radius=top_radius, height=bottom_height, thickness=thickness);
-    left(top_radius * 2.5) bucket_top(bottom_radius=bottom_radius, top_radius=top_radius, height=top_height, thickness=thickness);
+    //left(top_radius * 2.5) bucket_top(bottom_radius=bottom_radius, top_radius=top_radius, height=top_height, thickness=thickness);
 }
 
 default_draw();
-
-//notched_ring(inner_radius = 80, thickness = 5, height = 10, notch_height=2, notch_thickness=0.5);
-//thickness = 3;
-//top_radius = 80;
-//notched_ring(outer_radius=top_radius, thickness=(thickness/2) - 0.25, height=20, outside=false);
